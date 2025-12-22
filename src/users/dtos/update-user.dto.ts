@@ -1,4 +1,4 @@
-export class UpdateUserDTP{
+export class UpdateUserDto{
     name : string;
     email: string;
     password: string;
