@@ -1,6 +1,6 @@
 import { Body, Controller, Delete, Get, Param, Patch, Post, Put } from '@nestjs/common';
 import { CreateProductDto } from '../dtos/create-porduct.dto';
-import { UpadateProductDto } from '../dtos/update-product.dto';
+import { UpdateProductDto } from '../dtos/update-product.dto';
 import { PartialUpdateProductsDto } from '../dtos/partial-update-product.dto';
 import { ProductsService } from '../services/products.service';
 
@@ -24,7 +24,7 @@ export class ProductsController {
   }
 
   @Put(':id')
-  update(@Param('id') id: string, @Body() dto: UpadateProductDto) {
+  update(@Param('id') id: string, @Body() dto: UpdateProductDto) {
     return this.service.update(Number(id), dto);
   }
 

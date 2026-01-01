@@ -1,5 +1,6 @@
-export class UpadateProductDto {
-    name: string
+export class UpdateProductDto {
+    name: string;
+    description?: string;
     price: number;
     stock: number;
 }

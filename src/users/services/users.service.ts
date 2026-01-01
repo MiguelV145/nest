@@ -1,57 +1,60 @@
-import { Injectable } from '@nestjs/common';
-import { User } from '../entities/user.entity';
-import { UserMapper } from '../mappers/user.mapper';
+import { Injectable, NotFoundException } from '@nestjs/common';
+import { InjectRepository } from '@nestjs/typeorm';
+import { Repository } from 'typeorm';
+import { UserEntity } from '../entities/user.entity';
+import { User } from '../models/user.model';
 import { CreateUserDTO } from '../dtos/create-user.dto';
 import { UpdateUserDto } from '../dtos/update-user.dto';
 import { PartialUpdateUserDto } from '../dtos/partial-update.user.dto';
 
 @Injectable()
 export class UsersService {
+  constructor(
+    @InjectRepository(UserEntity)
+    private readonly userRepository: Repository<UserEntity>,
+  ) {}
 
-    private users: User[] = [];
-  private currentId = 1;
-
-  findAll() {
-    return this.users.map(u => UserMapper.toResponse(u));
+  async findAll() {
+    return (await this.userRepository.find())
+      .map(User.fromEntity)
+      .map(user => user.toResponseDto());
   }
 
-  findOne(id: number) {
-    const user = this.users.find(u => u.id === id);
-    if (!user) return { error: 'User not found' };
-    return UserMapper.toResponse(user);
+  async findOne(id: number) {
+    const entity = await this.userRepository.findOne({ where: { id } });
+    if (!entity) throw new NotFoundException(`User with ID ${id} not found`);
+
+    return User.fromEntity(entity).toResponseDto();
   }
 
-  create(dto: CreateUserDTO) {
-    const entity = UserMapper.toEntity(this.currentId++, dto);
-    this.users.push(entity);
-    return UserMapper.toResponse(entity);
+  async create(dto: CreateUserDTO) {
+    const user = User.fromDto(dto);
+    const saved = await this.userRepository.save(user.toEntity());
+    return User.fromEntity(saved).toResponseDto();
   }
 
-  update(id: number, dto: UpdateUserDto) {
-    const user = this.users.find(u => u.id === id);
-    if (!user) return { error: 'User not found' };
+  async update(id: number, dto: UpdateUserDto) {
+    const entity = await this.userRepository.findOne({ where: { id } });
+    if (!entity) throw new NotFoundException(`User with ID ${id} not found`);
 
-    user.name = dto.name;
-    user.email = dto.email;
+    const updated = User.fromEntity(entity).update(dto).toEntity();
+    const saved = await this.userRepository.save(updated);
 
-    return UserMapper.toResponse(user);
+    return User.fromEntity(saved).toResponseDto();
   }
 
-  partialUpdate(id: number, dto: PartialUpdateUserDto) {
-    const user = this.users.find(u => u.id === id);
-    if (!user) return { error: 'User not found' };
+  async partialUpdate(id: number, dto: PartialUpdateUserDto) {
+    const entity = await this.userRepository.findOne({ where: { id } });
+    if (!entity) throw new NotFoundException(`User with ID ${id} not found`);
 
-    if (dto.name !== undefined) user.name = dto.name;
-    if (dto.email !== undefined) user.email = dto.email;
+    const updated = User.fromEntity(entity).partialUpdate(dto).toEntity();
+    const saved = await this.userRepository.save(updated);
 
-    return UserMapper.toResponse(user);
+    return User.fromEntity(saved).toResponseDto();
   }
 
-  delete(id: number) {
-    const exists = this.users.some(u => u.id === id);
-    if (!exists) return { error: 'User not found' };
-
-    this.users = this.users.filter(u => u.id !== id);
-    return { message: 'Deleted successfully' };
+  async delete(id: number) {
+    const result = await this.userRepository.delete(id);
+    if (result.affected === 0) throw new NotFoundException(`User with ID ${id} not found`);
   }
 }
