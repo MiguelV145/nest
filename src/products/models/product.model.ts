@@ -12,7 +12,19 @@ export class Product {
     public price: number,
     public stock: number,
     public createdAt: Date,
-  ) {}
+  ) {
+    if (!name || name.trim().length < 3) {
+      throw new Error("Nombre de producto inválido");
+    }
+
+    if (price < 0) {
+      throw new Error("Precio inválido");
+    }
+
+    if (stock < 0) {
+      throw new Error("Stock inválido");
+    }
+  }
 
   static fromDto(dto: CreateProductDto): Product {
     return new Product(0, dto.name, dto.description ?? null, dto.price, dto.stock ?? 0, new Date());

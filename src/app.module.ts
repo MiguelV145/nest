@@ -4,6 +4,8 @@ import { AuthModule } from './auth/auth.module';
 import { ProductsModule } from './products/products.module';
 import { StatusModule } from './status/status.module';
 import { TypeOrmModule } from '@nestjs/typeorm';
+import { AllExceptionsFilter } from './exception/filters/all-exceptions.filter';
+import { APP_FILTER } from '@nestjs/core';
 
 @Module({
   imports: [
@@ -24,5 +26,11 @@ import { TypeOrmModule } from '@nestjs/typeorm';
     StatusModule,
     
   ],
+      providers:[
+      {
+        provide: APP_FILTER,
+        useClass: AllExceptionsFilter,
+      },
+    ],
 })
 export class AppModule {}

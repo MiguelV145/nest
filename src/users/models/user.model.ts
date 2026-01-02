@@ -11,7 +11,20 @@ export class User {
     public email: string,
     public password: string,
     public createdAt: Date,
-  ) {}
+  ) {
+
+    if (!name || name.trim().length < 3) {
+      throw new Error("Nombre inválido");
+    }
+
+    if (!email || !email.includes("@")) {
+      throw new Error("Email inválido");
+    }
+
+    if (!password || password.length < 8) {
+      throw new Error("Password inválido");
+    }
+  }
 
   // ==================== FACTORY METHODS ====================
 
@@ -20,12 +33,7 @@ export class User {
    */
   static fromDto(dto: CreateUserDTO): User {
     return new User(
-      0, // El ID se asigna en BD
-      dto.name,
-      dto.email,
-      dto.password, // Aquí se cifraría en un caso real
-      new Date(),
-    );
+      0, dto.name, dto.email, dto.password, new Date());
   }
 
   /**
@@ -76,9 +84,8 @@ export class User {
   update(dto: UpdateUserDto): User {
     this.name = dto.name;
     this.email = dto.email;
-    if (dto.password) {
-      this.password = dto.password;
-    }
+    this.password = dto.password;
+        
     return this;
   }
 

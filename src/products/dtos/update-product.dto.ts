@@ -1,6 +1,23 @@
+import { IsNotEmpty, IsNumber, IsOptional, IsPositive, MaxLength, Min, MinLength } from "class-validator";
+
 export class UpdateProductDto {
-    name: string;
-    description?: string;
-    price: number;
-    stock: number;
+
+  @IsNotEmpty({ message: 'El nombre es obligatorio' })
+  @MinLength(3, { message: 'El nombre debe tener al menos 3 caracteres' })
+  @MaxLength(200, { message: 'El nombre no puede exceder 200 caracteres' })
+  name: string;
+
+  @IsOptional()
+  @MaxLength(500, { message: 'La descripción no puede exceder 500 caracteres' })
+  description?: string;
+
+  @IsNotEmpty({ message: 'El precio es obligatorio' })
+  @IsNumber({}, { message: 'El precio debe ser un número válido' })
+  @IsPositive({ message: 'El precio debe ser positivo' })
+  price: number;
+
+  @IsNotEmpty({ message: 'El stock es obligatorio' })
+  @IsNumber({}, { message: 'El stock debe ser un número válido' })
+  @Min(0, { message: 'El stock no puede ser negativo' })
+  stock: number;
 }

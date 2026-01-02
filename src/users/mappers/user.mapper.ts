@@ -1,8 +1,9 @@
 import { User } from "../entities/user.entity"
+import { CreateUserDTO } from "../dtos/create-user.dto";
 
 export class UserMapper {
-    static toEntity(id: number, dto: any) {
-        return new User(id, dto.name, dto.email, dto.password)
+    static toEntity(dto: CreateUserDTO) {
+        return new User(0, dto.name, dto.email, dto.password)
     }
 
     static toResponse(entity: User) {
@@ -10,7 +11,7 @@ export class UserMapper {
             id: entity.id,
             name: entity.name,
             email: entity.email,
-
+            createdAt: entity.createdAt.toISOString(),
         };
     }
 
